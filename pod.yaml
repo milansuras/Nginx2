@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+spec:
+  volumes:
+    - name: config-volume
+      emptyDir: {}
+    - name: html-volume            # Define the html-volume here
+      emptyDir: {}
+  initContainers:
+    - name: config-fetcher
+      image: curlimages/curl
+      command: ["sh", "-c"]
+      args:
+        - "curl -o /config/nginx.conf https://raw.githubusercontent.com/milansuras/Nginx2/main/nginx.conf"
+      volumeMounts:
+        - name: config-volume
+          mountPath: /config
+  containers:
+    - name: nginx
+      image: nginx:latest
+      volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx/conf.d
+        - name: html-volume          # Mount the html-volume here
+          mountPath: /usr/share/nginx/html
+
